@@ -1,65 +1,358 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpeechLess - הפיכת טקסט לדיבור</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="app-container">
-        <header>
-            <div class="logo">🟠 SpeechLess</div>
-            <h1>הופכים טקסט לדיבור בקליק</h1>
-            <p>הקלידו טקסט בעברית או באנגלית, בחרו קול והפעילו!</p>
-        </header>
+<div class="app-container">
 
-        <main>
-            <div class="input-section">
-                <textarea id="text-input" placeholder="הקלידו או הדביקו כאן את הטקסט שלכם..."></textarea>
-                <div class="char-count"><span id="current-chars">0</span> תווים</div>
+  <!-- שלב 1: מסך פתיחה - טקסט לבן נקי בלבד ללא האייקון -->
+  <div id="splashScreen" class="app-screen splash-screen active">
+    <div class="splash-box-exact">
+      <!-- קופי פייסט מדויק של הטקסט - צבע לבן מוגדר ב-CSS -->
+      <div class="logo-text-main">SpeechLess</div>
+      <div class="logo-text-sub">You will leave them speechless</div>
+      
+      <button class="btn-white-lg" onclick="goToPricing()">המשך</button>
+    </div>
+  </div>
+
+  <!-- שלב 2: מסך תוכניות המינויים (Pricing Screen) -->
+  <div id="pricingScreen" class="app-screen pricing-screen">
+    <div class="screen-title-area">
+      <h2>בחר תוכנית מנוי כדי להתחיל</h2>
+    </div>
+    
+    <div class="pricing-grid">
+      <!-- מנוי חינם -->
+      <div class="price-card animate-card">
+        <h3>הנואם הבסיסי</h3>
+        <div class="price-val">חינם</div>
+        <ul class="features-list">
+          <li>5 ניתוחי נאומים בחודש</li>
+          <li>סרטונים עד 15 שניות</li>
+          <li>כולל פרסומות במערכת</li>
+        </ul>
+        <button class="btn-card-action primary" onclick="startApp('חינם')">בחר מסלול חינמי</button>
+      </div>
+
+      <!-- מנוי מיומן -->
+      <div class="price-card disabled">
+        <h3>הנואם המיומן</h3>
+        <div class="price-val">$12.90</div>
+        <ul class="features-list">
+          <li>ניתוח וידאו וקול ללא הגבלה</li>
+          <li>תוכנית ליווי אישית בעזרת הAI</li>
+          <li>ללא פרסומות במערכת</li>
+        </ul>
+        <button class="btn-card-action disabled-btn" disabled>שדרג (דורש תשלום)</button>
+      </div>
+
+      <!-- מנוי מושלם -->
+      <div class="price-card disabled">
+        <h3>הנואם המושלם</h3>
+        <div class="price-val">$21.90</div>
+        <ul class="features-list">
+          <li>הכל כולל הכל פתוח</li>
+          <li>תוכנית "הנואמים הגדולים" כלולה</li>
+          <li>ניתוח שפת גוף פיזי מתקדם</li>
+        </ul>
+        <button class="btn-card-action disabled-btn" disabled>שדרג (דורש תשלום)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- שלב 3: האפליקציה המרכזית (Main App Dashboard) -->
+  <div id="mainAppScreen" class="app-screen app-main-layout">
+    
+    <!-- סרגל כלים צידי (Sidebar Layout) -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">Speech<span>Less</span></div>
+      <nav class="sidebar-menu">
+        <button class="side-btn active" id="btn-side-dashboard" onclick="changeSection('dashboard')">🎯 ניתוח נאומים אישיים</button>
+        <button class="side-btn side-btn-locked" disabled>🔒 תוכנית הליווי האישית שלי</button>
+        <button class="side-btn" id="btn-side-buy-tier" onclick="changeSection('buy-tier')">💳 קניית מינוי</button>
+        <button class="side-btn" id="btn-side-profile" onclick="changeSection('profile')">👤 פרטי משתמש</button>
+        <button class="side-btn" id="btn-side-about" onclick="changeSection('about')">ℹ️ עלינו</button>
+        <button class="side-btn" id="btn-side-settings" onclick="changeSection('settings')">⚙️ הגדרות</button>
+        <button class="side-btn" id="btn-side-privacy" onclick="changeSection('privacy')">📄 מדיניות הפרטיות</button>
+      </nav>
+      <div class="sidebar-footer">
+        <span>מנוי פעיל: <strong id="tierDisplay">חינם</strong></span>
+      </div>
+    </aside>
+
+    <!-- אזור התוכן הראשי של האפליקציה -->
+    <div class="main-viewport" id="appMainViewport">
+      
+      <!-- טאב א': העלאת נאום -->
+      <div id="sec-dashboard" class="view-section active">
+        <div class="section-heading">
+          <h2>העלאת נאום</h2>
+        </div>
+        
+        <div class="workspace-grid">
+          <div class="dropzone-box" id="baseDropzone">
+            <div class="zone-illustration">📹</div>
+            <h3>לחץ או גרור קובץ וידאו</h3>
+            <p>מוגבל לעד 15 שניות במסלול החינמי</p>
+            <input type="file" accept="video/*" onchange="runMockUpload('base')">
+            <div class="progress-container" id="baseProgressCont">
+              <div class="progress-filler" id="baseProgressFill"></div>
             </div>
-
-            <div class="controls-section">
-                <div class="control-row">
-                    <label for="voice-select">🗣️ בחר קול:</label>
-                    <select id="voice-select">
-                        <option value="">טוען קולות...</option>
-                    </select>
-                </div>
-
-                <div class="sliders-grid">
-                    <div class="slider-box">
-                        <div class="slider-label">
-                            <span>⚡ מהירות דיבור:</span>
-                            <span id="rate-value" class="badge">1x</span>
-                        </div>
-                        <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1">
-                    </div>
-
-                    <div class="slider-box">
-                        <div class="slider-label">
-                            <span>🎵 טון קול (Pitch):</span>
-                            <span id="pitch-value" class="badge">1</span>
-                        </div>
-                        <input type="range" id="pitch" min="0.5" max="2" value="1" step="0.1">
-                    </div>
-                </div>
-
-                <div class="action-buttons">
-                    <button id="play-btn" class="btn play-btn">▶️ נגן טקסט</button>
-                    <button id="pause-btn" class="btn pause-btn" disabled>⏸️ השהה</button>
-                    <button id="stop-btn" class="btn stop-btn">🛑 עצור</button>
-                    <button id="clear-btn" class="btn clear-btn">🗑️ נקה הכל</button>
-                </div>
+          </div>
+          
+          <div class="chat-container">
+            <div class="chat-title">🤖 מנתח הנאומים האישי שלך</div>
+            <div class="chat-feed" id="baseChatFeed">
+              <div class="bubble ai">שלום! העלה סרטון קצר (עד 15 שניות) שבו אתה נואם, והמנוע שלנו ינתח מיידית את הכריזמה, קצב הדיבור ותנועות הידיים שלך.</div>
             </div>
-        </main>
+            <div class="chat-footer-bar">
+              <input type="text" id="baseInput" placeholder="העלה סרטון כדי לפתוח את הצ'אט..." disabled>
+              <button class="btn-send" disabled>שלח</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <footer>
-            <p>© 2026 SpeechLess App | כל הזכויות שמורות</p>
-        </footer>
+      <!-- טאב ב': קניית מינוי -->
+      <div id="sec-buy-tier" class="view-section">
+        <div class="section-heading">
+          <h2>שדרוג חברות וקניית מינוי</h2>
+          <p>בחר את אחד המסלולים המתקדמים כדי לפתוח את כל היכולות של SpeechLess</p>
+        </div>
+        <div class="pricing-grid">
+          <div class="price-card disabled">
+            <h3>הנואם המיומן</h3>
+            <div class="price-val">$12.90</div>
+            <ul class="features-list">
+              <li>ניתוח וידאו וקול ללא הגבלה</li>
+              <li>תוכנית ליווי אישית בעזרת הAI</li>
+              <li>ללא פרסומות במערכת</li>
+            </ul>
+            <button class="btn-card-action disabled-btn" disabled>שדרג כעת</button>
+          </div>
+          <div class="price-card disabled">
+            <h3>הנואם המושלם</h3>
+            <div class="price-val">$21.90</div>
+            <ul class="features-list">
+              <li>הכל כולל הכל פתוח</li>
+              <li>תוכנית "הנואמים הגדולים" כלולה</li>
+              <li>ניתוח שפת גוף פיזי מתקדם</li>
+            </ul>
+            <button class="btn-card-action disabled-btn" disabled>שדרג כעת</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- טאב ג': תוכנית הנואמים הגדולים - קטלוג ראשי עם דגלים בלבד ללא כיתוב מדינה -->
+      <div id="sec-orators" class="view-section">
+        <div class="section-heading">
+          <h2>🏛️ תוכנית הנואמים הגדולים</h2>
+          <p>לחץ על מנהיג היסטורי כדי לפצח את סודות השכנוע והרטוריקה שלו</p>
+        </div>
+
+        <div class="orators-catalog-grid">
+          <!-- בנימין נתניהו -->
+          <div class="orator-profile-card featured-orator" onclick="openBibiDemo()">
+            <div class="orator-flag-avatar">🇮🇱</div>
+            <h3>בנימין נתניהו</h3>
+            <p class="orator-style-desc"><strong>סגנון: כריזמה ממלכתית וסמכותית.</strong> מתאים למנהלים בכירים בחברות גדולות המציגים פרויקטים מורכבים, אך מצוין גם לאדם הפשוט שרוצה להוביל מסר בביטחון מוחלט ביומיום.</p>
+            <span class="orator-action-tag">כנס לתרגול חינם ➔</span>
+          </div>
+
+          <!-- דונלד טראמפ -->
+          <div class="orator-profile-card" onclick="openLockedModal('דונלד טראמפ')">
+            <div class="orator-flag-avatar">🇺🇸</div>
+            <h3>דונלד טראמפ</h3>
+            <p class="orator-style-desc"><strong>סגנון: שבירת מוסכמות וישירות.</strong> מתאים לנאומי מכירות והנעת המונים בחברות, וגם לאדם מהשורה המעוניין להעביר מסרים קצרים, קליטים וחדים בשיחות יומיומיות.</p>
+          </div>
+
+          <!-- מרטין לותר קינג -->
+          <div class="orator-profile-card" onclick="openLockedModal('מרטין לותר קינג')">
+            <div class="orator-flag-avatar">🇺🇸</div>
+            <h3>מרטין לותר קינג</h3>
+            <p class="orator-style-desc"><strong>סגנון: חזון רגשי עמוק ומקצב רטורי.</strong> מעולה להשראת עובדים וצוותים בארגונים, ואידיאלי לכל אדם המעוניין לרתק קהל, להציג חזון אישי ולחבר אנשים ללב שלו.</p>
+          </div>
+
+          <!-- נלסון מנדלה -->
+          <div class="orator-profile-card" onclick="openLockedModal('נלסון מנדלה')">
+            <div class="orator-flag-avatar">🇿🇦</div>
+            <h3>נלסון מנדלה</h3>
+            <p class="orator-style-desc"><strong>סגנון: איפוק, מנהיגות שקטה ואצילות.</strong> מיועד לפתרון קונפליקטים וניהול משברים פנים-ארגוניים, ומשמש כלי מדהים לכל אדם המבקש לבנות אמון ארוך טווח ולדבר בנועם משכנע.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- טאב ד': דף בנימין נתניהו - ניתוח ומקרה בוחן מדויק לפי דקות סרטון ה-NYT -->
+      <div id="sec-bibi-experience" class="view-section">
+        <div class="bibi-intro-block">
+          <button class="back-link-btn" onclick="changeSection('orators')">🔙 חזור לקטלוג הנואמים</button>
+          <h2>לנאום כמו בנימין נתניהו</h2>
+          <p class="bibi-bio">בנימין נתניהו נחשב לדעת מומחים בינלאומיים לאחד הנואמים המשכנעים והטקטיים ביותר בהיסטוריה המודרנית. היכולת שלו לרתק קהל עוין, לעשות שימוש מושלם בשפת גוף, הפסקות מתוזמנות היטב (Pauses) ודיקציה חדה, הופכת כל הופעה שלו לשיעור ברטוריקה.</p>
+        </div>
+
+        <div class="historical-analysis-box">
+          <h3>🎙️ מקרה בוחן: נאום משכנע בקונגרס האמריקאי (2015)</h3>
+          <p class="speech-subtitle">לחץ על כפתור הצפייה כדי לפתוח את הנאום, ועל נקודות הציון למטה כדי לראות את הניתוח המדעי והמתוזמן:</p>
+          
+          <!-- הקישור המדויק והעובד של ה-New York Times -->
+          <div class="youtube-link-container">
+            <a href="https://www.youtube.com/watch?v=5S4Y3aI3jxU" target="_blank" class="btn-youtube-player">
+              <span class="yt-icon">▶</span> צפה בנאום המלא ביוטיוב (חלון חיצוני)
+            </a>
+          </div>
+
+          <div class="timeline-points">
+            <div class="timeline-node" onclick="showTimelineNode(1)">
+              <div class="node-time">04:40</div>
+              <h4>פתיחה רטורית ויצירת קונצנזוס</h4>
+            </div>
+            <div class="timeline-node" onclick="showTimelineNode(2)">
+              <div class="node-time">22:05</div>
+              <h4>בניית דרמה ושימוש במחוות ידיים</h4>
+            </div>
+            <div class="timeline-node" onclick="showTimelineNode(3)">
+              <div class="node-time">41:15</div>
+              <h4>הקרנת סמכותיות ושינוי טונציה (Pauses)</h4>
+            </div>
+          </div>
+
+          <div class="analysis-output-window" id="timelineOutputBox">
+            לחץ על אחת מנקודות הזמן למעלה כדי לראות את הסודות הרטוריים של הנאום.
+          </div>
+        </div>
+
+        <div class="cta-scroll-wrapper">
+          <button class="btn-white-lg" onclick="goToBibiPractice()">למד איך לנאום כמוהו בדיוק!</button>
+        </div>
+      </div>
+
+      <!-- טאב ד' חלק 2: דף נפרד לתרגול עם בועת הדיבור המעודכנת לפי בקשתך -->
+      <div id="sec-bibi-practice" class="view-section">
+        <div class="bibi-intro-block">
+          <button class="back-link-btn" onclick="changeSection('bibi-experience')">🔙 חזור לניתוח הנאום</button>
+          <h2>אזור תרגול חופשי - סגנון נתניהו</h2>
+          <p class="practice-desc">העלה את סרטון הנאום שלך כאן. בגרסת תרגול זו אין הגבלת זמן, והבינה המלאכותית תמדוד את רמת ההתאמה שלך למדדים הרטוריים הייחודיים של נתניהו.</p>
+        </div>
+
+        <div class="workspace-grid">
+          <div class="dropzone-box" id="bibiDropzone">
+            <div class="zone-illustration">📹</div>
+            <h3>העלה סרטון</h3>
+            <p>ניתוח על פי התאמה לנאומי נתניהו</p>
+            <input type="file" accept="video/*" onchange="runMockUpload('bibi')">
+            <div class="progress-container" id="bibiProgressCont">
+              <div class="progress-filler" id="bibiProgressFill"></div>
+            </div>
+          </div>
+          
+          <div class="chat-container">
+            <div class="chat-title">🤖 מנתח הרטוריקה (מודל נתניהו)</div>
+            <div class="chat-feed" id="bibiChatFeed">
+              <!-- בועת הדיבור עודכנה במדויק לבקשתך -->
+              <div class="bubble ai">שלום! העלה סרטון שבו אתה נואם, והמנוע שלנו ינתח מיידית את הכריזמה, קצב הדיבור ותנועות הידיים שלך על פי סודות האום של בינימין נתניהו.</div>
+            </div>
+            <div class="chat-footer-bar">
+              <input type="text" id="bibiInput" placeholder="העלה סרטון כדי לפתוח את הצ'אט..." disabled>
+              <button class="btn-send" disabled>שלח</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- טאב ה': עלינו -->
+      <div id="tab-about" class="view-section">
+        <h2>עלינו</h2>
+        <div class="info-text-card">
+          <p><strong>SpeechLess</strong> היא פלטפורמת בינה מלאכותית מולטי-מודאלית מתקדמת, שנוסדה במטרה להעניק לכל אדם את הכלים הביטחון והיכולת המקצועית לנאום, להציג ולשכנע קהל בכל פלטפורמה.</p>
+          <p>הצוות המוביל שלנו מורכב מאנשי מקצוע מנוסים בעלי חזון לפצח את עולם הרטוריקה המודרני:</p>
+          <ul class="team-bullet-list">
+            <li><strong>עומרי וולדמן</strong> – מנכ"ל החברה</li>
+            <li><strong>עמית טל</strong> – סמנכ"ל ומנהל שיווק</li>
+            <li><strong>יובל מיכלין</strong> – מנהל כספים</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- טאב ו': פרטי משתמש -->
+      <div id="tab-profile" class="view-section">
+        <h2>פרטי משתמש</h2>
+        <div class="info-text-card profile-split">
+          <div class="large-avatar">👤</div>
+          <div class="profile-details">
+            <h3>פרופיל 123</h3>
+            <p>אימייל פעיל: speechless123@gmail.com</p>
+            <p>סוג מינוי: <span class="text-white-bold" id="profileTierText">חינם</span></p>
+            <p>ניתוחי נאום (גרסה חינמית) שנותרו החודש: 5 / 5</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- טאב ז': הגדרות -->
+      <div id="tab-settings" class="view-section">
+        <h2>הגדרות</h2>
+        <div class="info-text-card settings-grid-box">
+          <div class="setting-item">
+            <span>שפה</span>
+            <select class="app-select">
+              <option>עברית</option>
+              <option>אנגלית (English)</option>
+              <option>צרפתית (Français)</option>
+              <option>ספרדית (Español)</option>
+              <option>רוסית (Русский)</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <span>רגישות מנוע ניתוח תנועות הידיים</span>
+            <input type="range" class="app-slider" min="1" max="100" value="90">
+          </div>
+          <div class="setting-item">
+            <span>פידבק קולי מיידי בזמן אמת (באוזנייה)</span>
+            <input type="checkbox" checked class="app-checkbox">
+          </div>
+        </div>
+      </div>
+
+      <!-- טאב ח': מדיניות הפרטיות -->
+      <div id="tab-privacy" class="view-section">
+        <h2>מדיניות הפרטיות וזכויות יוצרים</h2>
+        <div class="info-text-card">
+          <p>אנו ב-SpeechLess רואים בשמירה על סודיות ופרטיות חומרי הווידאו והנאומים שלך ערך עליון. כל חומרי המדיה המועלים לפלטפורמה מעובדים בצורה מאובטחת ומקומית לצרכי הפקת דוחות המשוב המולטי-מודאליים בלבד, ואינם נשמרים, מועברים לצד ג' או משמשים לאימון מודלים חיצוניים.</p>
+          <p>© כל הזכויות שמורות לחברת SpeechLess 2026. השימוש בטכנולוגיות הניתוח, מבנה האפליקציה, חומרי לימוד הרטוריקה וזכויות השימוש ההוגן במקרי הבוחן ההיסטוריים מוגנים תחת חוקי הקניין הרוחני הבינלאומיים.</p>
+        </div>
+      </div>
+
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <!-- סרגל כלים תחתון (Mobile Nav) -->
+    <footer class="bottom-nav-bar">
+      <button class="nav-tab-btn active" id="btn-bottom-home" onclick="changeSection('dashboard')">
+        <div class="nav-icon">🏠</div>
+        <span>מסך הבית</span>
+      </button>
+      <button class="nav-tab-btn" id="btn-bottom-orators" onclick="changeSection('orators')">
+        <div class="nav-icon">🏛️</div>
+        <span>הנואמים הגדולים</span>
+      </button>
+    </footer>
+
+  </div>
+
+  <!-- חלון קופץ לנעילת שאר הנואמים הגדולים -->
+  <div id="lockedOratorModal" class="modal-overlay">
+    <div class="modal-window">
+      <h3 id="lockedModalTitle">שם המנהיג</h3>
+      <p>כדי לפתוח את מודול הניתוח המלא, תוכניות העבודה וסרטוני ההשוואה של אישיות היסטורית זו, באפשרותך לבצע רכישה ייעודית או לשדרג את המנוי הראשי שלך:</p>
+      
+      <div class="modal-cards-row">
+        <div class="modal-card">
+          <h4>רכישה חד-פעמית</h4>
+          <div class="modal-price-val">$7.90</div>
+          <button class="btn-modal-buy" onclick="closeLockedModal()">קנה אישיות זו ב-$7.90</button>
+        </div>
+        <div class="modal-card highlighted">
+          <h4>מנוע הנואמים המלא</h4>
+          <p>כלול בתוכנית הפרימיום</p>
+          <button class="btn-modal-upgrade" onclick="redirectToUpgradeSection()">קנה את תוכנית "הנואם המושלם"</button>
+        </div>
+      </div>
+      <button class="modal-close-trigger" onclick="closeLockedModal()">✖ סגור חלון</button>
+    </div>
+  </div>
+
+</div>
